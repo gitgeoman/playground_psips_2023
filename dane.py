@@ -7,5 +7,6 @@ users_list: list = [
     {"name": "Wiktoria", "nick": "wi", "posts": 360},
     {"name": "Wiktoria", "nick": "wiki", "posts": 123},
     {"name": "Monika", "nick": "Mo", "posts": 1_000_000},
-    {"name": "Kasia", "nick": "Kkk", "posts": 1_500}
+    {"name": "Kasia", "nick": "Kkk", "posts": 1_500},
+    {"name": "Tomek", "nick": "aaa", "posts": 1_00}
 ]
