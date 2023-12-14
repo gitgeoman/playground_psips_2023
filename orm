@@ -1,0 +1,85 @@
+from sqlalchemy import URL, create_engine, Column, String, DateTime, Text, Integer
+from sqlalchemy.orm import declarative_base
+from datetime import datetime
+from geoalchemy2 import Geometry
+import string
+from random import random
+import random
+from sqlalchemy.orm import sessionmaker
+
+from settings import POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD
+
+db_params = URL.create(
+    drivername="postgresql+psycopg2",
+    username=POSTGRES_USER,
+    password=POSTGRES_PASSWORD,
+    host="localhost",
+    database=POSTGRES_DB,
+    port=8101
+
+)
+
+engine = create_engine(db_params)
+connection = engine.connect()
+Base = declarative_base()
+
+
+class User(Base):
+    __tablename__ = 'user'
+
+    id = Column(Integer(), primary_key=True)
+    pesel = Column(String(100), nullable=True, unique=True)
+    imie = Column(String(100), nullable=True)
+    nazwisko = Column(String(100), nullable=True)
+    created_on = Column(DateTime(), default=datetime.now)
+    updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
+    nick = Column(Text)
+    location = Column('geom', Geometry(geometry_type='POINT', srid=4326), nullable=True)
+
+
+Base.metadata.create_all(engine)
+
+
+###########################################################################
+
+def str_generator(n):
+    return ''.join(
+        random.choices(
+            string.ascii_uppercase + string.digits, k=n
+        )
+    )
+
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# insert
+lista_userow = []
+for _ in range(100):
+
+    for user in range(0, 1_000):
+        lista_userow.append(User(
+            pesel=str_generator(10),
+            imie=str_generator(5),
+            nazwisko=str_generator(12),
+            nick=str_generator(4),
+            location=f'POINT({random.uniform(14, 24)} {random.uniform(49, 54.85)})'
+        ))
+
+# read
+# user_list = session.query(User).all()
+# for item in user_list:
+#     item.imie = 'aaaa'
+
+# aha  = session.query(User).filter(User.imie=='CGR38')
+# print(aha)
+
+# update
+# aha.imie='aaa'
+
+session.add_all(lista_userow)
+session.commit()
+
+session.flush()
+connection.close()
+engine.dispose()
